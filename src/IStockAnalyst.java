@@ -1,5 +1,7 @@
 import java.util.*;
-
+//added these
+import java.net.*;
+import java.io.*;
 public interface IStockAnalyst {
 
     String WEB_URL = "https://stockanalysis.com/list/";
@@ -8,8 +10,9 @@ public interface IStockAnalyst {
      * Method to get the text of a given web URL
      * @param url the web URL address
      * @return the web URL page text
+     * URL Depprecated, adding throws Exception
      */
-    String getUrlText(final String url);
+    String getUrlText(final String url) throws Exception;
 
     /**
      * Method to get the categories of stock lists

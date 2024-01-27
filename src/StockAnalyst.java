@@ -2,6 +2,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import java.net.*;
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class StockAnalyst implements IStockAnalyst {
     /**
      * Method to get the text of a given web URL
@@ -10,8 +15,18 @@ public class StockAnalyst implements IStockAnalyst {
      * @return the web URL page text
      */
     @Override
-    public String getUrlText(String url) {
-        return null;
+    public String getUrlText(String url) throws Exception {
+        URL oracle = new URL(WEB_URL);
+        URLConnection yc = oracle.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+        String inputLine = "";
+        String text = "";
+        while ((inputLine = in.readLine()) != null) {
+            text += inputLine + "\n";
+
+        }
+        in.close();
+        return text;
     }
 
     /**
@@ -22,6 +37,17 @@ public class StockAnalyst implements IStockAnalyst {
      */
     @Override
     public List<String> getStocksListCategories(String urlText) {
+        Pattern pattern = Pattern.compile("<li>(.*?)</li>");
+        Matcher matcher = pattern.matcher(urlText);
+        while(matcher.find()) {
+            //return according to format
+//            System.out.println("Class Time: " + matcher.group(1));
+//            System.out.println("Exam Day: " + matcher.group(3));
+//            System.out.println("Exam time: " + matcher.group(6));
+//            System.out.println("++++++++++++++++++++++++++++++");
+            System.out.println(matcher.group());
+        }
+
         return null;
     }
 
