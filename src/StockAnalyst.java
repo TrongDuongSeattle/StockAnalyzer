@@ -1,5 +1,4 @@
 import java.util.*;
-
 import java.net.*;
 import java.io.*;
 import java.util.regex.Matcher;
@@ -17,7 +16,7 @@ public class StockAnalyst implements IStockAnalyst {
         URL oracle = new URL(url);
         URLConnection yc = oracle.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-        String inputLine = "";
+        String inputLine;
         String text = "";
         while ((inputLine = in.readLine()) != null) {
             text += inputLine + "\n";
@@ -36,14 +35,29 @@ public class StockAnalyst implements IStockAnalyst {
     public List<String> getStocksListCategories(String urlText) {
         Pattern pattern = Pattern.compile("<h2.*?>(.*?)</h2>");
         Matcher matcher = pattern.matcher(urlText);
-        int i = 0;
         List<String> listOfChoices = new ArrayList<String>();
-        while(matcher.find()) {
+        while (matcher.find()) {
             listOfChoices.add(matcher.group(1));
         }
         return listOfChoices;
     }
 
+    /**
+     * Helper method to distinguish subcategories
+     * @param urlText complete webpage
+     * @param categoryName h2 headers of webpage
+     * @return the portion of the HTML file containing only the subcategories of the given category name
+     */
+    public String parseStocksListsInListCategory(String urlText, String categoryName){
+        String subcategories = "";
+        String newPattern = "<h2.*?>.*?" + categoryName + ".*?</ul>";
+        Pattern pattern = Pattern.compile(newPattern);
+        Matcher matcher = pattern.matcher(urlText);
+        while (matcher.find()) {
+           subcategories = matcher.group();
+        }
+        return subcategories;
+    }
     /**
      * Method to get the list of stocks within a stock list category
      *
@@ -51,36 +65,27 @@ public class StockAnalyst implements IStockAnalyst {
      * @param stockCategoryName the stock list category name
      * @return map that contains stock lists and their URLs. Key is stock list name, and value is the URL
      * Example of a map entry <“Mega-Cap”, https://stockanalysis.com/list/mega-cap-stocks/>
-     * <p>
-     * note the ahref gives the full URL
-     * <a href="/list/biggest-companies/">Biggest Companies By Market Cap</a>
-     * example call
-     * obj.getStocksListsInCategory(
-     * must click on list to get to data...
-     *
-     * feels duplicative
+     * That makes sense because all the subcategories match the same structure, and the regex finds a match for them and returns it.
+     * Preparing the text you need to send for this regex to match could help.
+     * A hint: If we exclude only the HTML text that is specific to the specific category and pass it to the regex matcher,
+     * it will help to focus only on the subcategory that you are interested in instead of the entire list of all subcategories.
      */
+
+
     @Override
     public Map<String, String> getStocksListsInListCategory(String urlText, String stockCategoryName) {
-        // Key is stock list name, and value is the URL
-        //"<li><a (.*?)>(.*?)</a></li>"
-        //<ul class="list.*?><li><a href="(.*?)">(.*?)</a> </li></ul>
-        //<ul .*?><li><a href="(.*?)">(.*?)</a> </li></ul>
-        //<li><a href="(.*?)">(.*?)</a> </li>
-        //(<li>)<a href=\"(.*?)\">(</a> </li>(</ul></div>))*?(.*?)</a>
-        Pattern pattern = Pattern.compile("<li><a href=\"(.*?)\">");
+        Pattern pattern = Pattern.compile("<li><a href=\"(.*?)\">\\b(.*?)\\b</a>");
         Matcher matcher = pattern.matcher(urlText);
-        int i = 0;
-        Map<String, String> mapOfChoices = new HashMap<String, String>();
+        Map<String, String> mapOfChoices = new LinkedHashMap<String, String>();
         while(matcher.find()) {
-           // System.out.println(matcher.group());
-            //System.out.println(matcher.group(2) + "-----------" + matcher.group(1));
-            //mapOfChoices.put(matcher.group(2), matcher.group(1));
+            mapOfChoices.put(matcher.group(2), matcher.group(1));
         }
-
-        System.out.println( mapOfChoices.isEmpty());
         return mapOfChoices;
     }
+    /*
+     * need a helper method to sort companies by percent change
+     * \d?\d\.\d\d% is the regex to find percentages
+     */
 
     /**
      * Method to get top companies by change rate
@@ -88,13 +93,21 @@ public class StockAnalyst implements IStockAnalyst {
      * @param urlText  the text of the page that has the stock list
      * @param topCount how many companies to return
      * @return map that has the top companies and their change rate. Key is the change rate and value is the company name
-     * <p>
-     * notice it returns a TreeMap
-     *
      */
     @Override
     public TreeMap<Double, String> getTopCompaniesByChangeRate(String urlText, int topCount) {
-
-        return null;
+        Pattern pattern = Pattern.compile("(<td class=\".*?\">.*?</td>){2}<td class=\".*?\">(.*?)</td>(<td class=\".*?\">(.*?)</td>){3}");
+        Matcher matcher = pattern.matcher(urlText);
+        TreeMap<Double, String> TreeMapOfChoices = new TreeMap<Double, String>();
+        String newStockPercentage;
+        double stockPercentage;
+        int count = 0;
+        while(matcher.find() && count < topCount) {
+            newStockPercentage = matcher.group(4).replace("%", "");
+            stockPercentage = Double.parseDouble(newStockPercentage);
+            TreeMapOfChoices.put(stockPercentage, matcher.group(2));
+            count++;
+        }
+       return TreeMapOfChoices;
     }
 }
