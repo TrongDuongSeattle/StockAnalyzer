@@ -6,7 +6,9 @@
  * Assignment 1
  */
 import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.List;
 public class Client {
     /**
      * TODO:
@@ -23,19 +25,20 @@ public class Client {
      *
      * used recursion to keep running in case of wrong input.
      */
-    static void getUserInput() {
-        try {
-            System.out.println("##------------------------------------------------------------------");
-            Scanner sc = new Scanner(System.in);
-            System.out.println("These are the available stock list categories, please choose one");
-            int userSelelection = sc.nextInt();
-
-           //StockAnalyst.getStocksListCategories(userSelelection);
-        } catch (InputMismatchException e) {
-            System.out.println("Please enter a number");
-            getUserInput();
-        }
-    }
+//    static void getUserInput() {
+//        try {
+//            System.out.println("##------------------------------------------------------------------");
+//            Scanner sc = new Scanner(System.in);
+//            System.out.println("These are the available stock list categories, please choose one");
+//            int userSelelection = sc.nextInt();
+//
+//
+//           //StockAnalyst.getStocksListCategories(userSelelection);
+//        } catch (InputMismatchException e) {
+//            System.out.println("Please enter a valid number");
+//            getUserInput();
+//        }
+//   }
     /**
      * All URl constructors are deprecated now
      * https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/net/URL.html#constructor-deprecation
@@ -43,9 +46,26 @@ public class Client {
      */
     public static void main(String[] args) throws Exception {
         //getUserInput();
-        StockAnalyst obj = new StockAnalyst();
-        String webPage = obj.getUrlText(IStockAnalyst.WEB_URL);
-        obj.getStocksListCategories(webPage);
+//        System.out.println("##------------------------------------------------------------------");
+//            Scanner sc = new Scanner(System.in);
+//            System.out.println("These are the available stock list categories, please choose one");
+        StockAnalyst stockAnalyzer = new StockAnalyst();
+        String webPage = stockAnalyzer.getUrlText(IStockAnalyst.WEB_URL);
+//        List<String> categories = stockAnalyzer.getStocksListCategories(webPage);
+//        int i =0;
+//        for (String s: categories) {
+//            System.out.println(i + ". " + s);
+//            i++;
+//        }
+//        //make more robust
+//        int userSelelection =  sc.nextInt();
+        //System.out.println(0);
+        Map<String, String> mapOfCategories = stockAnalyzer.getStocksListsInListCategory(webPage, "Popular List");
+        for (Map.Entry<String, String> entry : mapOfCategories.entrySet()) {
+            System.out.println(entry.getKey() + "-------------------" + entry.getValue());
+        }
+
+
 
 
 

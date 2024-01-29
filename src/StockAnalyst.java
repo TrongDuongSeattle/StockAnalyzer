@@ -1,6 +1,4 @@
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import java.net.*;
 import java.io.*;
@@ -16,14 +14,13 @@ public class StockAnalyst implements IStockAnalyst {
      */
     @Override
     public String getUrlText(String url) throws Exception {
-        URL oracle = new URL(WEB_URL);
+        URL oracle = new URL(url);
         URLConnection yc = oracle.openConnection();
         BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
         String inputLine = "";
         String text = "";
         while ((inputLine = in.readLine()) != null) {
             text += inputLine + "\n";
-
         }
         in.close();
         return text;
@@ -37,18 +34,14 @@ public class StockAnalyst implements IStockAnalyst {
      */
     @Override
     public List<String> getStocksListCategories(String urlText) {
-        Pattern pattern = Pattern.compile("<li>(.*?)</li>");
+        Pattern pattern = Pattern.compile("<h2.*?>(.*?)</h2>");
         Matcher matcher = pattern.matcher(urlText);
+        int i = 0;
+        List<String> listOfChoices = new ArrayList<String>();
         while(matcher.find()) {
-            //return according to format
-//            System.out.println("Class Time: " + matcher.group(1));
-//            System.out.println("Exam Day: " + matcher.group(3));
-//            System.out.println("Exam time: " + matcher.group(6));
-//            System.out.println("++++++++++++++++++++++++++++++");
-            System.out.println(matcher.group());
+            listOfChoices.add(matcher.group(1));
         }
-
-        return null;
+        return listOfChoices;
     }
 
     /**
@@ -60,10 +53,33 @@ public class StockAnalyst implements IStockAnalyst {
      * Example of a map entry <“Mega-Cap”, https://stockanalysis.com/list/mega-cap-stocks/>
      * <p>
      * note the ahref gives the full URL
+     * <a href="/list/biggest-companies/">Biggest Companies By Market Cap</a>
+     * example call
+     * obj.getStocksListsInCategory(
+     * must click on list to get to data...
+     *
+     * feels duplicative
      */
     @Override
     public Map<String, String> getStocksListsInListCategory(String urlText, String stockCategoryName) {
-        return null;
+        // Key is stock list name, and value is the URL
+        //"<li><a (.*?)>(.*?)</a></li>"
+        //<ul class="list.*?><li><a href="(.*?)">(.*?)</a> </li></ul>
+        //<ul .*?><li><a href="(.*?)">(.*?)</a> </li></ul>
+        //<li><a href="(.*?)">(.*?)</a> </li>
+        //(<li>)<a href=\"(.*?)\">(</a> </li>(</ul></div>))*?(.*?)</a>
+        Pattern pattern = Pattern.compile("<li><a href=\"(.*?)\">");
+        Matcher matcher = pattern.matcher(urlText);
+        int i = 0;
+        Map<String, String> mapOfChoices = new HashMap<String, String>();
+        while(matcher.find()) {
+           // System.out.println(matcher.group());
+            //System.out.println(matcher.group(2) + "-----------" + matcher.group(1));
+            //mapOfChoices.put(matcher.group(2), matcher.group(1));
+        }
+
+        System.out.println( mapOfChoices.isEmpty());
+        return mapOfChoices;
     }
 
     /**
@@ -74,9 +90,11 @@ public class StockAnalyst implements IStockAnalyst {
      * @return map that has the top companies and their change rate. Key is the change rate and value is the company name
      * <p>
      * notice it returns a TreeMap
+     *
      */
     @Override
     public TreeMap<Double, String> getTopCompaniesByChangeRate(String urlText, int topCount) {
+
         return null;
     }
 }
